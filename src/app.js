@@ -9,9 +9,16 @@ app.use(express.json());
 // Routes
 const authRouter = require('./routes/auth');
 const jobsRouter = require('./routes/jobs');
+const applicationsRouter = require('./routes/applications');
+const { getJobApplications } = require('./controllers/applicationController');
+const auth = require('./middlewares/jwtMiddleware');
 
 app.use('/auth', authRouter);
 app.use('/jobs', jobsRouter);
+app.use('/applications', applicationsRouter);
+
+// Candidatures d'une offre spécifique (recruiter)
+app.get('/jobs/:id/applications', auth, getJobApplications);
 
 // Test DB
 const pool = require('./config/db');
