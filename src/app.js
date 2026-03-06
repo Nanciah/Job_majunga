@@ -1,14 +1,30 @@
+require('dotenv').config();
 const express = require('express');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const cors = require('cors');
 const app = express();
 
-app.use(express.json()); // Parse JSON bodies
-app.use(helmet()); // Headers sécurité (slide 7.2)
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 })); // Limite globale 200 req/15min (slide 7.2)
+app.use(cors());
+app.use(express.json());
 
-// Route test basique
-app.get('/', (req, res) => res.send('JobMajunga Backend OK - Prêt pour API REST !'));
+// Routes
+const authRouter = require('./routes/auth');
+const jobsRouter = require('./routes/jobs');
+
+app.use('/auth', authRouter);
+app.use('/jobs', jobsRouter);
+
+// Test DB
+const pool = require('./config/db');
+app.get('/test-db', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT id, email, role FROM users');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).send('Erreur DB: ' + err.message);
+  }
+});
+
+app.get('/', (req, res) => res.send('JobMajunga Backend OK'));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Serveur lancé sur port ${port}`));
