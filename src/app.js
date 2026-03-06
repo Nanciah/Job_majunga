@@ -7,15 +7,17 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-const authRouter        = require('./routes/auth');
-const jobsRouter        = require('./routes/jobs');
+const authRouter         = require('./routes/auth');
+const jobsRouter         = require('./routes/jobs');
 const applicationsRouter = require('./routes/applications');
-const profileRouter     = require('./routes/profile');
+const profileRouter      = require('./routes/profile');
+const cvsRouter          = require('./routes/cvs');
 
 app.use('/auth',         authRouter);
 app.use('/jobs',         jobsRouter);
 app.use('/applications', applicationsRouter);
 app.use('/profile',      profileRouter);
+app.use('/cvs',          cvsRouter);
 
 // Candidatures d'une offre spécifique (recruiter)
 const { getJobApplications } = require('./controllers/applicationController');
