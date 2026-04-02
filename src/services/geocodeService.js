@@ -1,5 +1,5 @@
 // src/services/geocodeService.js
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 /**
  * Convertit une adresse en coordonnées GPS (latitude, longitude)
