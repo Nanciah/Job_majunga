@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-  createCV, getMyCVs, getCVById, updateCV, deleteCV, getPublicCV,
+  createCV, getUserCvs, getCVById, updateCV, deleteCV, getPublicCV,
   addSection, updateSection, deleteSection
 } = require('../controllers/cvController');
 const auth = require('../middlewares/jwtMiddleware');
@@ -14,7 +14,7 @@ const candidateOnly = (req, res, next) => {
 
 // CVs
 router.get('/public/:token', getPublicCV);                          // Public, sans auth
-router.get('/', auth, candidateOnly, getMyCVs);                     // Mes CVs
+router.get('/', auth, candidateOnly, getUserCvs,);                     // Mes CVs
 router.post('/', auth, candidateOnly, createCV);                    // Créer un CV
 router.get('/:id', auth, candidateOnly, getCVById);                 // Détail CV + sections
 router.put('/:id', auth, candidateOnly, updateCV);                  // Modifier CV

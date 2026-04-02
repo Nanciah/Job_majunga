@@ -6,16 +6,16 @@ const { v4: uuidv4 } = require('uuid');
 // POST /cvs — Créer un CV
 const createCV = async (req, res) => {
   const candidateId = req.user.userId;
-  const { title, template_id, color_theme } = req.body;
+  const { title, template_id, color_theme, photo_base64 } = req.body;
 
   if (!title)
     return res.status(400).json({ error: 'title est requis' });
 
   try {
     const [result] = await pool.query(
-      `INSERT INTO cvs (candidate_id, title, template_id, color_theme, is_public)
-       VALUES (?, ?, ?, ?, 0)`,
-      [candidateId, title, template_id || 'classic', color_theme || '#2563EB']
+      `INSERT INTO cvs (candidate_id, title, template_id, color_theme, photo_base64, is_public)
+       VALUES (?, ?, ?, ?, ?, 0)`,
+      [candidateId, title, template_id || 'classic', color_theme || '#2563EB', photo_base64 || null]
     );
     res.status(201).json({ message: 'CV créé', cvId: result.insertId });
   } catch (err) {
@@ -24,11 +24,11 @@ const createCV = async (req, res) => {
 };
 
 // GET /cvs — Mes CVs
-const getMyCVs = async (req, res) => {
+const getUserCvs = async (req, res) => {
   const candidateId = req.user.userId;
   try {
     const [rows] = await pool.query(
-      'SELECT id, title, template_id, color_theme, is_public, created_at FROM cvs WHERE candidate_id = ? ORDER BY created_at DESC',
+      'SELECT id, title, template_id, color_theme, photo_base64, is_public, created_at FROM cvs WHERE candidate_id = ? ORDER BY created_at DESC',
       [candidateId]
     );
     res.json({ total: rows.length, cvs: rows });
@@ -55,7 +55,7 @@ const getCVById = async (req, res) => {
       [id]
     );
 
-    res.json({ ...cvRows[0], sections });
+    res.json({ cv: cvRows[0], sections });
   } catch (err) {
     res.status(500).json({ error: 'Erreur détail CV: ' + err.message });
   }
@@ -65,7 +65,7 @@ const getCVById = async (req, res) => {
 const updateCV = async (req, res) => {
   const { id } = req.params;
   const candidateId = req.user.userId;
-  const { title, template_id, color_theme, is_public } = req.body;
+  const { title, template_id, color_theme, photo_base64, is_public } = req.body;
 
   try {
     const [rows] = await pool.query(
@@ -75,7 +75,6 @@ const updateCV = async (req, res) => {
     if (rows.length === 0)
       return res.status(404).json({ error: 'CV non trouvé' });
 
-    // Générer un token public si on rend le CV public
     let public_token = rows[0].public_token;
     if (is_public && !public_token) {
       public_token = uuidv4();
@@ -86,10 +85,11 @@ const updateCV = async (req, res) => {
         title        = COALESCE(?, title),
         template_id  = COALESCE(?, template_id),
         color_theme  = COALESCE(?, color_theme),
+        photo_base64 = COALESCE(?, photo_base64),
         is_public    = COALESCE(?, is_public),
         public_token = ?
        WHERE id = ?`,
-      [title, template_id, color_theme, is_public !== undefined ? is_public : null, public_token, id]
+      [title, template_id, color_theme, photo_base64, is_public !== undefined ? is_public : null, public_token, id]
     );
 
     res.json({ message: 'CV mis à jour', public_token: is_public ? public_token : null });
@@ -134,7 +134,7 @@ const getPublicCV = async (req, res) => {
       [cvRows[0].id]
     );
 
-    res.json({ ...cvRows[0], sections });
+    res.json({ cv: cvRows[0], sections });
   } catch (err) {
     res.status(500).json({ error: 'Erreur CV public: ' + err.message });
   }
@@ -222,6 +222,13 @@ const deleteSection = async (req, res) => {
 };
 
 module.exports = {
-  createCV, getMyCVs, getCVById, updateCV, deleteCV, getPublicCV,
-  addSection, updateSection, deleteSection
+  createCV,
+  getUserCvs,
+  getCVById,
+  updateCV,
+  deleteCV,
+  getPublicCV,
+  addSection,
+  updateSection,
+  deleteSection
 };
