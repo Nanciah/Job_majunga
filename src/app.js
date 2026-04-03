@@ -39,6 +39,10 @@ app.get('/test-db-simple', async (req, res) => {
 });
 
 app.use(cors());
+// TEST SIMPLE - sans base de données
+app.get('/test-simple', (req, res) => {
+    res.json({ message: 'Le serveur fonctionne parfaitement !' });
+});
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
