@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+app.set('trust proxy', 1);  // ← SOLUTION
+
 // TEST DE CONNEXION A LA BASE (avec détails)
 app.get('/test-db-simple', async (req, res) => {
     try {
