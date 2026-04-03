@@ -41,12 +41,13 @@ app.get('/test-db-simple', async (req, res) => {
 });
 
 app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 // TEST SIMPLE - sans base de données
 app.get('/test-simple', (req, res) => {
     res.json({ message: 'Le serveur fonctionne parfaitement !' });
 });
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 const authRouter         = require('./routes/auth');
@@ -55,6 +56,9 @@ const applicationsRouter = require('./routes/applications');
 const profileRouter      = require('./routes/profile');
 const cvsRouter          = require('./routes/cvs');
 const adminRouter        = require('./routes/admin');
+
+console.log('✅ Routes chargées avec succès');
+console.log('Auth router:', authRouter ? 'chargé' : 'non chargé');
 
 app.use('/auth',         authRouter);
 app.use('/jobs',         jobsRouter);
