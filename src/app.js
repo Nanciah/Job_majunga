@@ -2,22 +2,42 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-// TEST SIMPLE - SANS BASE DE DONNEES
-app.get('/test-simple', (req, res) => {
-    res.json({ message: 'Le serveur fonctionne parfaitement !' });
-});
-
-// TEST DE CONNEXION A LA BASE
+// TEST DE CONNEXION A LA BASE (avec détails)
 app.get('/test-db-simple', async (req, res) => {
     try {
+        // Vérifie d'abord les variables d'environnement
+        const envCheck = {
+            DB_HOST: process.env.DB_HOST ? '✅ défini' : '❌ manquant',
+            DB_USER: process.env.DB_USER ? '✅ défini' : '❌ manquant',
+            DB_PASSWORD: process.env.DB_PASSWORD ? '✅ défini' : '❌ manquant',
+            DB_NAME: process.env.DB_NAME ? '✅ défini' : '❌ manquant',
+            DB_PORT: process.env.DB_PORT ? '✅ défini' : '❌ manquant',
+        };
+        
+        // Essaie la connexion
         const pool = require('./config/db');
         const [rows] = await pool.query('SELECT 1+1 AS result');
-        res.json({ success: true, result: rows[0].result });
+        
+        res.json({ 
+            success: true, 
+            result: rows[0].result,
+            env: envCheck
+        });
     } catch (error) {
-        res.json({ success: false, error: error.message });
+        res.json({ 
+            success: false, 
+            error: error.message,
+            code: error.code,
+            env: {
+                DB_HOST: process.env.DB_HOST ? '✅ défini' : '❌ manquant',
+                DB_USER: process.env.DB_USER ? '✅ défini' : '❌ manquant',
+                DB_PASSWORD: process.env.DB_PASSWORD ? '✅ défini' : '❌ manquant',
+                DB_NAME: process.env.DB_NAME ? '✅ défini' : '❌ manquant',
+                DB_PORT: process.env.DB_PORT ? '✅ défini' : '❌ manquant',
+            }
+        });
     }
 });
-
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
