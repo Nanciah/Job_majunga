@@ -2,6 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
+// TEST SIMPLE - SANS BASE DE DONNEES
+app.get('/test-simple', (req, res) => {
+    res.json({ message: 'Le serveur fonctionne parfaitement !' });
+});
+
+// TEST DE CONNEXION A LA BASE
+app.get('/test-db-simple', async (req, res) => {
+    try {
+        const pool = require('./config/db');
+        const [rows] = await pool.query('SELECT 1+1 AS result');
+        res.json({ success: true, result: rows[0].result });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
