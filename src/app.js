@@ -1,11 +1,11 @@
-//require('dotenv').config();
+// require('dotenv').config();  // ← COMMENTÉ pour Railway
 const express = require('express');
 const cors = require('cors');
 const app = express();
+
 // TEST DE CONNEXION A LA BASE (avec détails)
 app.get('/test-db-simple', async (req, res) => {
     try {
-        // Vérifie d'abord les variables d'environnement
         const envCheck = {
             DB_HOST: process.env.DB_HOST ? '✅ défini' : '❌ manquant',
             DB_USER: process.env.DB_USER ? '✅ défini' : '❌ manquant',
@@ -14,7 +14,6 @@ app.get('/test-db-simple', async (req, res) => {
             DB_PORT: process.env.DB_PORT ? '✅ défini' : '❌ manquant',
         };
         
-        // Essaie la connexion
         const pool = require('./config/db');
         const [rows] = await pool.query('SELECT 1+1 AS result');
         
@@ -38,6 +37,7 @@ app.get('/test-db-simple', async (req, res) => {
         });
     }
 });
+
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -76,7 +76,7 @@ app.get('/test-db', async (req, res) => {
 // Routes de base
 app.get('/', (req, res) => res.send('JobMajunga Backend OK'));
 
-// ➕ Health check pour Railway (optionnel mais recommandé)
+// Health check pour Railway
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'OK', 
@@ -87,9 +87,9 @@ app.get('/health', (req, res) => {
 
 // Configuration du serveur pour Railway
 const port = process.env.PORT || 3000;
-const host = '0.0.0.0';  // ⬅️ Nécessaire pour Railway
+const host = '0.0.0.0';
 
-app.listen(port, host, () => {  // ⬅️ host ajouté ici
+app.listen(port, host, () => {
     console.log(`🚀 Serveur JobMajunga lancé sur http://${host}:${port}`);
     console.log(`📅 Environnement: ${process.env.NODE_ENV || 'development'}`);
 });
